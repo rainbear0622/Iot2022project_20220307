@@ -37,23 +37,19 @@ class MyView(View):
     def login(self, request):
         return render(request, 'login.html');
 
-    @request_mapping("/restDetail", method="get")
-    def restDetail(self, request):
+    @request_mapping("/restDetail/<int:pk>", method="get")
+    def restDetail(self, request, pk):
         # home에서 클릭한 id 가져오기
-        rest = Rest.objects.get(id=1);
-        star_avg = Review.objects.filter(rest=1).aggregate(s_avg=Avg('s_rating'), m_avg=Avg('m_rating'), p_avg=Avg('p_rating'));
-        menu = Menu.objects.filter(rest=1);
-        review = Review.objects.filter(rest=1).order_by('-id'); # 내림차순 정렬
+        rest = Rest.objects.get(id=pk);
+        star_avg = Review.objects.filter(rest=pk).aggregate(s_avg=Avg('s_rating'), m_avg=Avg('m_rating'),
+                                                           p_avg=Avg('p_rating'));
+        menu = Menu.objects.filter(rest=pk);
+        review = Review.objects.filter(rest=pk).order_by('-id');  # 내림차순 정렬
         imgpath = Imgpath.objects.all();
-        try:
-            cust = Cust.objects.get(id=request.session['sessionid']);
-            host_flag = cust.host_flag
-        except:
-            host_flag = 0
-
+        cust = Cust.objects.get(id=request.session['sessionid']);
         context = {
             'rest': rest,
-            'host_flag': host_flag,
+            'cust': cust,
             'star_avg': star_avg,
             'menu': menu,
             'review': review,
